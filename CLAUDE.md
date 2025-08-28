@@ -121,6 +121,26 @@ The project uses Jest with three test suites:
 - Optimized memory and timeout settings
 - Consider enabling provisioned concurrency for consistent performance
 
+## Production Testing
+
+### Live Server Testing
+The server is deployed at: `https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com`
+
+See `API_TESTS.md` for comprehensive testing commands including:
+- REST API endpoint tests
+- MCP protocol compliance tests  
+- Error handling tests
+- Performance and load tests
+
+### Quick Health Check
+```bash
+curl -s https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/health | jq .
+```
+
+### Interactive Documentation
+- Swagger UI: https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/docs
+- OpenAPI Spec: https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/openapi.json
+
 ## Troubleshooting
 
 ### Common Issues
@@ -128,6 +148,7 @@ The project uses Jest with three test suites:
 2. **AWS Deployment Failures**: Check AWS credentials and permissions
 3. **Test Failures**: Ensure all mocks are properly configured
 4. **Lambda Cold Starts**: Consider provisioned concurrency for production
+5. **MCP Server Errors**: Ensure server capabilities are configured in constructor
 
 ### Useful Debug Commands
 ```bash
@@ -142,6 +163,9 @@ npx serverless invoke local -f handler
 
 # Check AWS CloudWatch logs
 aws logs tail /aws/lambda/demo-mcp-server-dev-handler --follow
+
+# Test live deployment
+curl -s https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/ | jq .
 ```
 
 ## Performance Optimization
