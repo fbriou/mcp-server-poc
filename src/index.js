@@ -16,6 +16,11 @@ import { swaggerUI } from '@hono/swagger-ui';
 const mcpServer = new Server({
   name: 'demo-mcp-server',
   version: '1.0.0',
+}, {
+  capabilities: {
+    tools: {},
+    logging: {}
+  }
 });
 
 // Initialize Hono app

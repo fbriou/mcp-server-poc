@@ -37,10 +37,8 @@
     "serverless-offline": "^13.3.0"
   },
   "jest": {
-    "type": "module",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/src",
       "<rootDir>/tests"
     ],
     "testMatch": [
@@ -57,8 +55,7 @@
       "text",
       "lcov",
       "html"
-    ],
-    "transform": {}
+    ]
   },
   "keywords": [
     "mcp",
