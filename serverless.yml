@@ -1,0 +1,108 @@
+service: demo-mcp-server
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  
+  # Environment variables
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}, 'info'}
+  
+  # IAM role statements
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+
+# Custom variables
+custom:
+  logLevel:
+    dev: debug
+    prod: info
+  
+  serverless-offline:
+    httpPort: 3000
+    host: 0.0.0.0
+    useChildProcesses: true
+
+# Lambda functions
+functions:
+  handler:
+    name: ${self:service}-${self:provider.stage}-handler
+    description: MCP Server with Hono API for AWS Lambda
+    handler: src/index.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+    
+    # Reserved concurrency (optional)
+    # reservedConcurrency: 10
+    
+    # Provisioned concurrency (optional, for production)
+    # provisionedConcurrency: 1
+
+# CloudFormation resources
+resources:
+  Resources:
+    # API Gateway Custom Domain (optional)
+    # ApiGatewayDomainName:
+    #   Type: AWS::ApiGateway::DomainName
+    #   Properties:
+    #     DomainName: api.yourdomain.com
+    #     CertificateArn: arn:aws:acm:us-east-1:123456789012:certificate/your-cert-id
+    
+    # CloudWatch Log Group
+    HandlerLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/${self:service}-${self:provider.stage}-handler
+        RetentionInDays: 14
+
+  Outputs:
+    ApiGatewayUrl:
+      Description: "API Gateway endpoint URL"
+      Value:
+        Fn::Sub: "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+      Export:
+        Name: ${self:service}-${self:provider.stage}-api-url
+    
+    HandlerFunctionName:
+      Description: "Lambda function name"
+      Value: !Ref HandlerLambdaFunction
+      Export:
+        Name: ${self:service}-${self:provider.stage}-handler-name
+
+# Plugins
+plugins:
+  - serverless-offline
+
+# Package configuration
+package:
+  patterns:
+    - 'src/**'
+    - 'package.json'
+    - '!tests/**'
+    - '!coverage/**'
+    - '!.git/**'
+    - '!.github/**'
+    - '!*.md'
+    - '!.env*'
+    - '!.eslint*'
+    - '!.prettier*'
+    - '!jest.config.*'

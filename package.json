@@ -1,0 +1,86 @@
+{
+  "name": "demo-mcp-server",
+  "version": "1.0.0",
+  "description": "A serverless Model Context Protocol (MCP) server that also provides REST API endpoints using Hono for AWS Lambda deployment",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "format": "prettier --write src/**/*.js",
+    "build": "echo 'No build step required for Lambda deployment'",
+    "deploy": "serverless deploy",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f handler",
+    "invoke": "serverless invoke -f handler",
+    "offline": "serverless offline"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "hono": "^4.0.0",
+    "@hono/swagger-ui": "^0.2.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "nodemon": "^3.0.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.0"
+  },
+  "jest": {
+    "type": "module",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js",
+      "!src/**/__tests__/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "transform": {}
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "serverless",
+    "aws-lambda",
+    "hono",
+    "api",
+    "rest",
+    "json-rpc"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/demo-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/demo-mcp-server/issues"
+  },
+  "homepage": "https://github.com/your-username/demo-mcp-server#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
