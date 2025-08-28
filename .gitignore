@@ -112,6 +112,9 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Local MCP settings for testing
+mcp-settings.json
+
 # Logs
 logs
 *.log

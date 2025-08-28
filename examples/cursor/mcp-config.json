@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "demo-mcp-server": {
+      "url": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
+    }
+  }
+}
