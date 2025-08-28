@@ -91,36 +91,73 @@ A serverless Model Context Protocol (MCP) server that provides both MCP-over-HTT
 - **GET** `/mcp` - Server discovery and capabilities
 - **POST** `/mcp` - MCP JSON-RPC 2.0 endpoint
 
+## Live Demo
+
+🚀 **Deployed Server**: `https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com`
+
+📖 **Interactive Documentation**: https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/docs
+
 ## Usage Examples
+
+### Test the Live Server
+
+#### Server Information
+```bash
+curl https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/
+```
+
+#### Health Check
+```bash
+curl https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/health
+```
 
 ### REST API Examples
 
 #### Echo Tool
 ```bash
-curl -X POST https://your-api-gateway-url/api/tools/echo \
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/tools/echo \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello, World!"}'
+  -d '{"message": "Hello from AWS Lambda!"}'
 ```
 
 #### Calculate Tool
 ```bash
-curl -X POST https://your-api-gateway-url/api/tools/calculate \
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/tools/calculate \
   -H "Content-Type: application/json" \
   -d '{"expression": "2 + 2 * 3"}'
 ```
 
 #### Get Time Tool
 ```bash
-curl -X POST https://your-api-gateway-url/api/tools/get_time \
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/tools/get_time \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+#### Get System Info
+```bash
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/tools/get_system_info \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+#### Get API Stats
+```bash
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/api/tools/api_stats \
   -H "Content-Type: application/json" \
   -d '{}'
 ```
 
 ### MCP Protocol Examples
 
+#### Server Discovery
+```bash
+curl https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp
+```
+
 #### List Tools
 ```bash
-curl -X POST https://your-api-gateway-url/mcp \
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -129,9 +166,28 @@ curl -X POST https://your-api-gateway-url/mcp \
   }'
 ```
 
-#### Call Tool
+#### Initialize MCP Session
 ```bash
-curl -X POST https://your-api-gateway-url/mcp \
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {
+        "name": "test-client",
+        "version": "1.0.0"
+      }
+    }
+  }'
+```
+
+#### Call Tool via MCP
+```bash
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -162,6 +218,107 @@ demo-mcp-server/
 ├── CLAUDE.md                   # Claude Code configuration
 ├── .gitignore                  # Git ignore rules
 └── .env.example               # Environment variables template
+```
+
+## MCP Client Configuration
+
+### Claude Code Configuration
+
+To use this MCP server with Claude Code, add the following configuration to your MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "demo-mcp-server": {
+      "command": "node",
+      "args": [
+        "-e",
+        "const { createServer } = require('http'); const server = createServer((req, res) => { if (req.method === 'POST') { let body = ''; req.on('data', chunk => body += chunk); req.on('end', async () => { try { const request = JSON.parse(body); const response = await fetch('https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) }); const result = await response.json(); res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(result)); } catch (error) { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: 'Internal error', data: error.message }, id: null })); } }); } else { res.writeHead(404); res.end(); } }); server.listen(0, () => console.log(JSON.stringify({ port: server.address().port })));"
+      ]
+    }
+  }
+}
+```
+
+### Alternative: Direct HTTP Configuration
+
+For MCP clients that support HTTP transport:
+
+```json
+{
+  "mcpServers": {
+    "demo-mcp-server": {
+      "transport": "http",
+      "baseUrl": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
+    }
+  }
+}
+```
+
+### Cursor Configuration
+
+For Cursor IDE, add this to your `cursor-settings.json` or MCP configuration:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "demo-mcp-server": {
+        "command": "npx",
+        "args": [
+          "-y", 
+          "@modelcontextprotocol/server-everything@latest",
+          "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
+        ],
+        "env": {
+          "MCP_SERVER_URL": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
+        }
+      }
+    }
+  }
+}
+```
+
+### Manual MCP Client Testing
+
+You can also test the MCP server manually with any JSON-RPC 2.0 client:
+
+```bash
+# Test with curl (Initialize)
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {"name": "curl", "version": "1.0.0"}
+    }
+  }'
+
+# List available tools
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list"
+  }'
+
+# Call a tool
+curl -X POST https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "calculate",
+      "arguments": {"expression": "2 * Math.PI * 5"}
+    }
+  }'
 ```
 
 ## Development

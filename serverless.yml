@@ -78,7 +78,7 @@ resources:
     ApiGatewayUrl:
       Description: "API Gateway endpoint URL"
       Value:
-        Fn::Sub: "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+        Fn::Sub: "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
       Export:
         Name: ${self:service}-${self:provider.stage}-api-url
     
