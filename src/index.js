@@ -230,12 +230,12 @@ const openApiSpec = {
     description: 'A serverless Model Context Protocol (MCP) server that also provides REST API endpoints using Hono for better performance and AWS Lambda compatibility.',
     contact: {
       name: 'API Support',
-      url: 'https://github.com/your-repo/mcp-server'
+      url: 'https://github.com/fbriou/mcp-server-poc'
     }
   },
   servers: [
     {
-      url: 'https://okwaj0rdwk.execute-api.us-east-1.amazonaws.com',
+      url: 'https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com',
       description: 'Production server'
     },
     {
