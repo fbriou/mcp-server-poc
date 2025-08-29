@@ -224,56 +224,29 @@ demo-mcp-server/
 
 ### Claude Code Configuration
 
-To use this MCP server with Claude Code, add the following configuration to your MCP settings:
+For Claude Code and other MCP clients that support direct HTTP transport:
 
 ```json
 {
   "mcpServers": {
     "demo-mcp-server": {
-      "command": "node",
-      "args": [
-        "-e",
-        "const { createServer } = require('http'); const server = createServer((req, res) => { if (req.method === 'POST') { let body = ''; req.on('data', chunk => body += chunk); req.on('end', async () => { try { const request = JSON.parse(body); const response = await fetch('https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) }); const result = await response.json(); res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(result)); } catch (error) { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: 'Internal error', data: error.message }, id: null })); } }); } else { res.writeHead(404); res.end(); } }); server.listen(0, () => console.log(JSON.stringify({ port: server.address().port })));"
-      ]
+      "url": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
     }
   }
 }
 ```
 
-### Alternative: Direct HTTP Configuration
-
-For MCP clients that support HTTP transport:
-
-```json
-{
-  "mcpServers": {
-    "demo-mcp-server": {
-      "transport": "http",
-      "baseUrl": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
-    }
-  }
-}
-```
+**Note**: Replace the URL with your own deployed server URL after running `npm run deploy:dev` or `npm run deploy:prod`.
 
 ### Cursor Configuration
 
-For Cursor IDE, add this to your `cursor-settings.json` or MCP configuration:
+For Cursor IDE, add this to your MCP configuration file:
 
 ```json
 {
-  "mcp": {
-    "servers": {
-      "demo-mcp-server": {
-        "command": "npx",
-        "args": [
-          "-y", 
-          "@modelcontextprotocol/server-everything@latest",
-          "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
-        ],
-        "env": {
-          "MCP_SERVER_URL": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
-        }
-      }
+  "mcpServers": {
+    "demo-mcp-server": {
+      "url": "https://idm0cr9p5c.execute-api.us-east-1.amazonaws.com/mcp"
     }
   }
 }
